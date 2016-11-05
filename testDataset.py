@@ -14,9 +14,11 @@ trainY = []
 testX = []
 testY = []
 
-def getData(testProportion = 0.15):
+def parseData(testProportion = 0.15):
     global trainX, trainY
     global testX, testY
+    global words, worldDic
+    global tags, tagDic
     print("Parsing data")
     sentences = []
     with open("data/all2.txt","r") as f:
@@ -30,7 +32,21 @@ def getData(testProportion = 0.15):
             for pair in wordTag:
                 if len(pair) != 2:
                     continue
-                curSent.append( (pair[0], pair[1]) )
+                word = pair[0].lower()
+                tag = pair[1].upper()
+                curSent.append( (word, tag) )
+                # Fill the word and tag Dic
+                wordId = wordDic.get(word)
+                tagId = tagDic.get(tag)
+                if (wordId == None):
+                    words.append(word)
+                    wordId = len(words) - 1
+                    wordDic[word] = wordId
+                if (tagId == None):
+                    tags.append(tag)
+                    tagId = len(tags) - 1
+                    tagDic[tag] = tagId
+                
                 if pair[1] == '.':
                     sentences.append(curSent)
                     curSent = []
@@ -38,20 +54,22 @@ def getData(testProportion = 0.15):
                 sentences.append(curSent)
     random.shuffle(sentences)
     splitI = math.ceil(len(sentences)*testProportion)
-    testX,testY = sentenceToVector(sentences[:splitI])
-    trainX,trainY = sentenceToVector(sentences[splitI:])
+    testX,testY = sentenceToVector(sentences[:splitI], len(tags))
+    trainX,trainY = sentenceToVector(sentences[splitI:], len(tags))
     
-def sentenceToVector(sentences):
-    #TODO
+def sentenceToVector(sentences, numOfTags):
+    X=[]
+    Y=[]
     for sentence in sentences:
+        prevWordId = 0
+        prevTagId = 0
         for wordTag in sentence:
             wordId = wordDic.get(wordTag[0])
             tagId = tagDic.get(wordTag[1])
-            if (wordId == None):
-                words.append(wordTag[0])
-                wordId = len(words) - 1
-                wordDic[wordTag[0]] = wordId
-            if (tagId == None):
-                tags.append(wordTag[1])
-                tagId = len(tags) - 1
-                tagDic[wordTag[0]] = wordId
+            X.append([prevWordId, prevTagId, wordId])
+            prevWordId = wordId
+            yvec = np.zeros(numOfTags)
+            yvec[tagId]=1
+            Y.append(yvec)
+            prevTagId = tagId
+    return (np.array(X), np.array(Y))
