@@ -73,3 +73,22 @@ def sentenceToVector(sentences, numOfTags):
             Y.append(yvec)
             prevTagId = tagId
     return (np.array(X), np.array(Y))
+
+def getWordId(word):
+    global words,wordDic
+    wordId = wordDic.get(word)
+    if (wordId == None):
+        words.append(word)
+        wordId = len(words) - 1
+        wordDic[word] = wordId
+    return wordId
+
+def getTagId(tag):
+    global tags, tagDic
+    tagId = tagDic.get(tag)
+    if (tagId == None):
+        tags.append(tag)
+        tagId = len(tags) - 1
+        tagDic[tag] = tagId
+
+    return tagId
