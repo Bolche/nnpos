@@ -1,0 +1,3 @@
+Isso/A é/B um/C teste/D ./. Isso/A é/B mais/D um/D teste/D ./.
+
+Mais/D um/C ./.
